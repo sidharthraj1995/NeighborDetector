@@ -1,6 +1,6 @@
 /* 
   Arkham Labs - ESP32
-  Project: DhumDhum Detector
+  Project DhumDhum
   
   Date: Oct 10, 2022
 */
