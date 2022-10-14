@@ -2,12 +2,16 @@
   Arkham Labs - ESP32
   Project DhumDhum
   
+  Detect footsteps of you upstairs neighbors using 
+  an inexpensive Shock Sensor - HW 513
+  Signal pin connected to ESP32 - GPIO 32
+
   Date: Oct 10, 2022
 */
 
 #include <Arduino.h>
-#include <WiFi.h>
-#include <PubSubClient.h>
+// #include <WiFi.h>
+// #include <PubSubClient.h>
 
 
 #define ONBOARD_LED 2
@@ -25,29 +29,40 @@ bool shockSt = 0;
 
 
 
-// Wifi info
-const char* SS_D = "REPLACE_WITH_YOUR_SS_D";
-const char* PWD = "REPLACE_WITH_YOUR_PASSWORD";
+// *************** 
+// Wifi credentials
+// Update network credentials below
+// ***************
+// const char* SS_D = "E.L.S.A BCKUP";
+// const char* PWD = "funnypear2902";
 
-// MQTT info
-const char *mqttServer = "MQTT_BROKER_IP";
-#define mqtt_port 12595
-#define MQTT_USER "eapcfltj"
-#define MQTT_PASSWORD "3EjMIy89qzVn"
 
+
+// *************** 
+// MQTT credentials
+// Update MQTT credentials below
+// ***************
+// const char *mqttServer = "MQTT_BROKER_IP";
+// #define mqtt_port 12595
+// #define MQTT_USER "eapcfltj"
+// #define MQTT_PASSWORD "3EjMIy89qzVn"
+
+
+
+// *************** 
 // MQTT
-// Add topics here
+// Add topics below
+// ***************
 
+// WiFiClient wifiClient;
 
-WiFiClient wifiClient;
-
-PubSubClient mqttClient(wifiClient); 
+// PubSubClient mqttClient(wifiClient); 
 
 
 class shockSensor {
   private:
-  int _shockPin = 99;
-  int _ledPin = 99;
+  int _shockPin = 999;
+  int _ledPin = 990;
   unsigned char _shockState = 1;     // ShockSensor is NC
   unsigned char _ledState = 1;
 
@@ -129,7 +144,7 @@ void setup() {
 
 void loop() {
   int sState = s1.getState();
-  while(sState == 0) {
+  if(sState == 0) {
     s1.showShock(shockDebounce);
   }
   
