@@ -100,33 +100,21 @@ LED::~LED() {
 class shockSensor {
   private:
   int _shockPin;
-  int _ledPin;
   unsigned char _shockState = 1;     // ShockSensor is NC
-  unsigned char _ledState = 0;
 
   public:
-  shockSensor(int pin1, int pin2 = ONBOARD_LED);
-  void showShock(int debounce);
+  shockSensor(uint8_t pin1);
+  void showShock(uint8_t mode);
   void readState();
   int getState();
-  void ledON();
-  void ledOFF();
 };
 
 
-shockSensor::shockSensor(int pin1, int pin2) {
+shockSensor::shockSensor(uint8_t pin1) {
 
 }
 
-void shockSensor::ledOFF() {
-
-}
-
-void shockSensor::ledON() {
-
-}
-
-void shockSensor::showShock(int debounce) {
+void shockSensor::showShock(uint8_t mode) {
 
 }
 
@@ -140,7 +128,7 @@ int shockSensor::getState() {
 
 
 
-shockSensor s1(shockSensorPin, ONBOARD_LED);
+shockSensor s1(shockSensorPin);
 
 void setup() {
   // put your setup code here, to run once:
