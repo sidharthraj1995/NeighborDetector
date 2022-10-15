@@ -1,11 +1,15 @@
- /* 
-  Arkham Labs - ESP32
-  Project DhumDhum
+/* 
+  Arkham Labs
+  Project: DhumDhum
+  MCU: ESP32 - DevKit
   
-  Detect footsteps of you upstairs neighbors using 
-  an inexpensive Shock Sensor - HW 513
-  Signal pin connected to ESP32 - GPIO 32
-
+  IOs
+  - Shock Sensor: HW-513 #GPIO_32
+  - LED: ONBOARD_LED #GPIO_2
+  
+  Detect footsteps of your annoying upstairs
+  neighbors using an inexpensive Shock Sensor
+  
   Date: Oct 10, 2022
 */
 
@@ -100,7 +104,7 @@ LED::~LED() {
 class shockSensor {
   private:
   int _shockPin;
-  unsigned char _shockState = 1;     // ShockSensor is NC
+  unsigned char _shockState;     // ShockSensor is NC
 
   public:
   shockSensor(uint8_t pin1);
@@ -123,7 +127,7 @@ void shockSensor::readState() {
 }
 
 int shockSensor::getState() {
-
+  return 0;
 }
 
 
