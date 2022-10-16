@@ -39,11 +39,18 @@
 #define shockSensorPin  33
 
 
+// Timer: Auxiliary variables
+unsigned long now = millis();
+unsigned long lastTrigger = 0;
+boolean startTimer = false;
+
+
 class LED {
 private:
   unsigned char _ledEnabled = DIO_DISABLED;
   uint8_t _ledPin;
-  unsigned char _ledState;
+  volatile byte _ledState = DIO_OFF;
+  int flashCount = 0;
 public:
   LED(uint8_t pin);
   void ledON();
@@ -105,14 +112,16 @@ void LED::ledON() {
  * !!PENDING!!
  * A method to internally flash the LED 
  ****/
-void LED::ledFlash(int cycle, int debouce = 150) {
+void LED::ledFlash(int cycle, int debouce = 500) {
   LED::ledOFF();
   for(int i = 0; i < cycle; i++) {
     LED::ledON();
     delay(debouce);
     LED::ledOFF();
+    delay(debouce);
   }
-  Serial.println("<SYSTEM_LED> LED mode: FLASH enabled");
+  flashCount++;
+  Serial.printf("<SYSTEM_LED> <%d> LED mode: FLASH, CYCLE: %d, DEBOUNCE: %d\n", flashCount, cycle, debouce);
 }
 
 /****
@@ -129,7 +138,8 @@ class shockSensor {
   private:
   unsigned char _shockEnabled = DIO_DISABLED;
   uint8_t _shockPin;
-  unsigned char _shockState;     // ShockSensor is NC
+  volatile byte _shockState = DIO_OFF;     // ShockSensor is NC
+  int shockCount =0;
 
   public:
   shockSensor(uint8_t pin);
@@ -145,7 +155,7 @@ class shockSensor {
  ****/
 shockSensor::shockSensor(uint8_t pin) {
   _shockPin = pin;
-  pinMode(_shockPin, INPUT);
+  pinMode(_shockPin, INPUT_PULLUP);
   _shockState = DIO_ENABLED;
   Serial.printf("<SYSTEM_SHOCK> Init successful using PIN: %d\n", pin);
 }
@@ -154,10 +164,8 @@ shockSensor::shockSensor(uint8_t pin) {
  * Simple method to read Shock sensor state
  ****/
 void shockSensor::readState() {
-  if(!(_shockEnabled)) {
-    Serial.println("!!ERROR!! Shock Sensor System not enabled!!");
-  }  else
-    _shockState = digitalRead(_shockPin);
+  _shockState = digitalRead(_shockPin);
+  Serial.println("<SHOCK> Shock Sensor READ!!");
 }
 
 /****
@@ -165,7 +173,10 @@ void shockSensor::readState() {
  ****/
 int shockSensor::getState() {
   shockSensor::readState();
-  return _shockState;
+  if ( _shockState == shockTriggered)
+    return DIO_ON;
+
+  return DIO_OFF;
 }
 
 /****
@@ -175,6 +186,17 @@ int shockSensor::getState() {
 void shockSensor::showShock(uint8_t mode) {
 }
 
+// --------- END of CLASS ------------------------------------
+
+// Checks if motion was detected, sets LED HIGH and starts a timer
+void IRAM_ATTR detectsShock() {
+  Serial.println("Shock DETECTED!!!");
+  digitalWrite(led, HIGH);
+  startTimer = true;
+  lastTrigger = millis();
+}
+
+
 
 // An instance of LED class and pass the pin
 LED l1(ONBOARD_LED);
@@ -183,7 +205,7 @@ LED l1(ONBOARD_LED);
 // An instance of shockSensor class and pass the pin
 shockSensor s1(shockSensorPin);
   
-int shockState;
+volatile byte shockState;
 
 
 void setup() {
@@ -195,10 +217,9 @@ void setup() {
 
 void loop() {
   Serial.println("<SYS> We are in LOOP!");
-  shockState = s1.getState();
-  if (!shockState) {
-    l1.ledOFF();
-  } else
+  if (s1.getState()) {
     Serial.println("Shock detected!!!");
-    l1.ledFlash(5, 200);
+    l1.ledFlash(5);
+  }
+  delay(500);
 }
