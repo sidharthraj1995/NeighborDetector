@@ -22,7 +22,7 @@
 
 #define ONBOARD_LED 2
 
-// IO states
+// Control IO states
 #define shockTriggered 0
 #define shockIdle 1
 
@@ -41,7 +41,7 @@
 
 class LED {
 private:
-  bool _ledEnabled = DIO_DISABLED;
+  unsigned char _ledEnabled = DIO_DISABLED;
   uint8_t _ledPin;
   unsigned char _ledState;
 public:
@@ -54,6 +54,11 @@ public:
   ~LED();
 };
 
+/****
+ * Init LED class, register the pin and set the mode
+ * It also Enables LED system 
+ * SET the LED to OFF
+ ****/
 LED::LED(uint8_t pin) {
   _ledPin = pin;
   pinMode(pin, OUTPUT);
@@ -62,38 +67,57 @@ LED::LED(uint8_t pin) {
   Serial.printf("<SYSTEM_MAIN> LED OBJ init using PIN: %d\n", pin);
 }
 
+/****
+ * Used to set the logical state of the LED
+ ****/
 void LED::setLEDState(unsigned char state) {
   _ledState = state;
   Serial.println("<SYSTEM_LED> Setting State");
 }
 
+/****
+ * Returns the instaneous state of LED
+ ****/
 int LED::getLEDState() {
   Serial.println("<SYSTEM_LED> Returning State");
   return _ledState;
 }
 
+/****
+ * Changes the state of the LED to OFF
+ ****/
 void LED::ledOFF() {
   digitalWrite(_ledPin, DIO_OFF);
   LED::setLEDState(DIO_OFF);
   Serial.println("<SYSTEM_LED> LED turned OFF");
 }
 
+/****
+ * Changes the state of the LED to ON
+ ****/
 void LED::ledON() {
   digitalWrite(_ledPin, DIO_ON);
   LED::setLEDState(DIO_ON);
   Serial.println("<SYSTEM_LED> LED turned ON");
 }
 
+/****
+ * !!PENDING!!
+ * A method to internally flash the LED 
+ ****/
 void LED::ledFlash(int cycle, int debouce = 150) {
-  Serial.println("<SYSTEM_LED> LED mode: FLASH enabled");
   LED::ledOFF();
   for(int i = 0; i < cycle; i++) {
     LED::ledON();
     delay(debouce);
     LED::ledOFF();
   }
+  Serial.println("<SYSTEM_LED> LED mode: FLASH enabled");
 }
 
+/****
+ * LED deconstructor
+ ****/
 LED::~LED() {
   Serial.println("<SYSTEM_MAIN> LED object deleted!!");
 }
@@ -103,36 +127,64 @@ LED::~LED() {
 
 class shockSensor {
   private:
-  int _shockPin;
+  unsigned char _shockEnabled = DIO_DISABLED;
+  uint8_t _shockPin;
   unsigned char _shockState;     // ShockSensor is NC
 
   public:
-  shockSensor(uint8_t pin1);
-  void showShock(uint8_t mode);
+  shockSensor(uint8_t pin);
   void readState();
   int getState();
+  void showShock(uint8_t mode);
 };
 
 
-shockSensor::shockSensor(uint8_t pin1) {
-
+/****
+ * Init Shock Sensor class
+ * Enabled Shock Sensor system
+ ****/
+shockSensor::shockSensor(uint8_t pin) {
+  _shockPin = pin;
+  pinMode(_shockPin, INPUT);
+  _shockState = DIO_ENABLED;
+  Serial.printf("<SYSTEM_SHOCK> Init successful using PIN: %d\n", pin);
 }
 
-void shockSensor::showShock(uint8_t mode) {
-
-}
-
+/****
+ * Simple method to read Shock sensor state
+ ****/
 void shockSensor::readState() {
-
+  if(!(_shockEnabled)) {
+    Serial.println("!!ERROR!! Shock Sensor System not enabled!!");
+  }  else
+    _shockState = digitalRead(_shockPin);
 }
 
+/****
+ * Simple method to return shock sensor state
+ ****/
 int shockSensor::getState() {
-  return 0;
+  shockSensor::readState();
+  return _shockState;
+}
+
+/****
+ * !!PENDING!! Internal call to show shock
+ * still not sure if there is a need for this within shocksensor class
+ ****/
+void shockSensor::showShock(uint8_t mode) {
 }
 
 
+// An instance of LED class and pass the pin
+LED l1(ONBOARD_LED);
 
+
+// An instance of shockSensor class and pass the pin
 shockSensor s1(shockSensorPin);
+  
+int shockState;
+
 
 void setup() {
   // put your setup code here, to run once:
@@ -143,10 +195,10 @@ void setup() {
 
 void loop() {
   Serial.println("<SYS> We are in LOOP!");
-  int sState = s1.getState();
-  if(sState == shockTriggered) {
-    s1.showShock(shockDebounce);
-    sState = s1.getState();
-  }
-  
+  shockState = s1.getState();
+  if (!shockState) {
+    l1.ledOFF();
+  } else
+    Serial.println("Shock detected!!!");
+    l1.ledFlash(5, 200);
 }
