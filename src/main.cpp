@@ -22,6 +22,8 @@
 
 #define ONBOARD_LED 2
 
+#define timeSeconds 10
+
 // Control IO states
 #define shockTriggered 0
 #define shockIdle 1
@@ -188,19 +190,8 @@ void shockSensor::showShock(uint8_t mode) {
 
 // --------- END of CLASS ------------------------------------
 
-// Checks if motion was detected, sets LED HIGH and starts a timer
-void IRAM_ATTR detectsShock() {
-  Serial.println("Shock DETECTED!!!");
-  digitalWrite(led, HIGH);
-  startTimer = true;
-  lastTrigger = millis();
-}
-
-
-
 // An instance of LED class and pass the pin
 LED l1(ONBOARD_LED);
-
 
 // An instance of shockSensor class and pass the pin
 shockSensor s1(shockSensorPin);
@@ -208,18 +199,30 @@ shockSensor s1(shockSensorPin);
 volatile byte shockState;
 
 
+// Checks if motion was detected, sets LED HIGH and starts a timer
+void IRAM_ATTR detectsShock() {
+  Serial.println("Shock DETECTED!!!");
+  l1.ledON();
+  startTimer = true;
+  lastTrigger = millis();
+}
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
   Serial.println("<SYS> We are in SETUP!!");
   Serial.println('\n' + "** Fuck Neighbors, White Trash! **" + '\n');
+  attachInterrupt(digitalPinToInterrupt(shockSensorPin), detectsShock, RISING);
 }
 
 void loop() {
   Serial.println("<SYS> We are in LOOP!");
-  if (s1.getState()) {
-    Serial.println("Shock detected!!!");
-    l1.ledFlash(5);
+  
+  now = millis();
+  // Turn off the LED after the number of seconds defined in the timeSeconds variable
+  if(startTimer && (now - lastTrigger > (timeSeconds*1000))) {
+    Serial.println("Shock stopped...");
+    l1.ledOFF();
+    startTimer = false;
   }
-  delay(500);
 }
