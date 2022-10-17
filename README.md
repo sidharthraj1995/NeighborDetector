@@ -1,2 +1,2 @@
 # NeighborDetector
- Simple arduino project to detect upstrair neighbors and theor stomping walk
+ Simple arduino project to detect upstrair neighbor's stomping using an inexpensive Vibration Sensor. 
