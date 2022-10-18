@@ -16,6 +16,7 @@
 
 
 #include <Arduino.h>
+#include <TickTwo.h>
 // #include <WiFi.h>
 // #include <PubSubClient.h>
 
@@ -49,6 +50,9 @@ unsigned long lastTrigger = 0;
 boolean startTimer = false;
 
 
+
+// --------- START of CLASS ------------------------------------
+
 class LED {
 private:
   unsigned char _ledEnabled = DIO_DISABLED;
@@ -57,25 +61,30 @@ private:
   int flashCount = 0;
 public:
   LED(uint8_t pin);
+  void ledInit();
   void ledON();
   void ledOFF();
-  void setLEDState(unsigned char state);
+  void ledToggle();
+  void setLEDState(byte state);
   int getLEDState();
   void ledFlash(int cycle, int debounce);
   ~LED();
 };
+
+LED::LED(uint8_t pin) {
+  _ledPin = pin;
+}
 
 /****
  * Init LED class, register the pin and set the mode
  * It also Enables LED system 
  * SET the LED to OFF
  ****/
-LED::LED(uint8_t pin) {
-  _ledPin = pin;
-  pinMode(pin, OUTPUT);
+void LED::ledInit() {
+  pinMode(_ledPin, OUTPUT);
   LED::ledOFF();
   _ledEnabled = DIO_ENABLED;
-  Serial.printf("<SYSTEM_MAIN> LED OBJ init using PIN: %d\n", pin);
+  Serial.printf("<SYSTEM_MAIN> LED OBJ init using PIN: %d\n", _ledPin);
 }
 
 /****
@@ -113,6 +122,16 @@ void LED::ledON() {
 }
 
 /****
+ * Changes the state of the LED to passed state
+ ****/
+void LED::ledToggle() {
+  digitalWrite(_ledPin, _ledState);
+  Serial.printf("<SYSTEM_LED> LED turned to state %d\n", _ledState);
+  LED::setLEDState(!_ledState);
+}
+
+
+/****
  * !!PENDING!!
  * A method to internally flash the LED 
  ****/
@@ -136,6 +155,8 @@ LED::~LED() {
 }
 
 // --------- END of CLASS ------------------------------------
+
+// --------- START of CLASS ------------------------------------
 
 class shockSensor {
   private:
@@ -208,14 +229,32 @@ void shockSensor::showShock(uint8_t mode) {
 
 // --------- END of CLASS ------------------------------------
 
+
+
+volatile bool shockState;
+int shockCount = 0;
+
+
+
+void changeState() {
+  digitalWrite(ONBOARD_LED, !(digitalRead(ONBOARD_LED)));
+}
+
 // An instance of LED class and pass the pin
-LED l1(ONBOARD_LED);
+// LED l1(ONBOARD_LED);
 
 // An instance of shockSensor class and pass the pin
 shockSensor s1(shockSensorPin);
-  
-volatile bool shockState;
 
+
+void sMonitor() {
+  if( !(s1.shockMonitor()) ) {
+    timer2.start();
+  }
+}
+
+TickTwo timer1(sMonitor, 1000, 2);
+TickTwo timer2(changeState, 250, 3);
 
 // Checks if motion was detected, sets LED HIGH and starts a timer
 // void IRAM_ATTR detectsShock() {
@@ -231,6 +270,12 @@ void setup() {
   Serial.println("<SETUP>");
   Serial.println('\n' + "** Fuck Neighbors, White Trash! **" + '\n');
   s1.shockInit();
+
+  pinMode(ONBOARD_LED, OUTPUT);
+  // l1.ledInit();
+
+
+  timer1.start();
   // attachInterrupt(digitalPinToInterrupt(shockSensorPin), detectsShock, RISING);
 }
 
@@ -245,9 +290,8 @@ void loop() {
   //   startTimer = false;
   // }
   
-  if( !(s1.shockMonitor()) ) {
-    l1.ledFlash(3, 250);
-  }
+  timer1.update();
+  timer2.update();
 
-  delay(500);
+
 }
