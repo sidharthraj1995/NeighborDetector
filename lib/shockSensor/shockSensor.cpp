@@ -6,6 +6,7 @@
 shockSensor::shockSensor(uint8_t pin)
 {
   _shockPin = pin;
+  _shockEnabled = DIO_DISABLED;
 }
 
 /****
@@ -33,12 +34,13 @@ void shockSensor::readState()
  ****/
 int shockSensor::getState()
 {
-  shockSensor::readState();
   if (_shockState == shockTriggered)
     return DIO_ON;
 
   return DIO_OFF;
 }
+
+
 
 bool shockSensor::shockMonitor()
 {

@@ -10,15 +10,18 @@ private:
   unsigned char _shockEnabled = DIO_DISABLED;
   uint8_t _shockPin;
   volatile byte _shockState = DIO_OFF; // ShockSensor is NC
-  int shockCount = 0;
 
 public:
   shockSensor(uint8_t pin);
+  int shockCount = 0;
   void shockInit();
   void readState();
   int getState();
-  bool shockMonitor();
-  void showShock(uint8_t mode);
+  void setState();
+  bool shockMonitor();            // redundant?
+  void showShock(uint8_t mode);   // get rid of it
+
+  // Add callabck func for read
 };
 
 #endif

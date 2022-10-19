@@ -19,11 +19,10 @@ private:
 public:
     LED(uint8_t pin);
     void ledInit();
-    void ledON();
-    void ledOFF();
-    void ledToggle();
     void setLEDState(byte state);
     int getLEDState();
+    void ledON();
+    void ledOFF();
     void ledFlash(int cycle = 3, int debounce = 250);
     ~LED();
 };

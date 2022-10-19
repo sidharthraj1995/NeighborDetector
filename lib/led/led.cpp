@@ -23,8 +23,9 @@ void LED::ledInit()
  ****/
 void LED::setLEDState(unsigned char state)
 {
-  _ledState = state;
-  Serial.println("<SYSTEM_LED> Setting State");
+  digitalWrite(_ledPin, state);
+  _ledState = digitalRead(_ledPin);
+  Serial.printf("<SYSTEM_LED> Setting State: %c\n", state);
 }
 
 /****
@@ -41,7 +42,6 @@ int LED::getLEDState()
  ****/
 void LED::ledOFF()
 {
-  digitalWrite(_ledPin, DIO_OFF);
   LED::setLEDState(DIO_OFF);
   Serial.println("<SYSTEM_LED> LED turned OFF");
 }
@@ -51,20 +51,10 @@ void LED::ledOFF()
  ****/
 void LED::ledON()
 {
-  digitalWrite(_ledPin, DIO_ON);
   LED::setLEDState(DIO_ON);
   Serial.println("<SYSTEM_LED> LED turned ON");
 }
 
-/****
- * Changes the state of the LED to passed state
- ****/
-void LED::ledToggle()
-{
-  digitalWrite(_ledPin, _ledState);
-  Serial.printf("<SYSTEM_LED> LED turned to state %d\n", _ledState);
-  LED::setLEDState(!_ledState);
-}
 
 /****
  * !!PENDING!!

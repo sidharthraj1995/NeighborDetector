@@ -15,6 +15,7 @@
 
 #include <Arduino.h>
 #include <TickTwo.h>
+
 #include <rtc_config.h>
 #include <led.h>
 #include <shockSensor.h>
@@ -30,19 +31,14 @@
 #define knockSensorPin 32
 #define shockSensorPin 33
 
+volatile bool shockState;
+int shockCount = 0;
+
 // Timer: Auxiliary variables
 unsigned long now = millis();
 unsigned long lastTrigger = 0;
 boolean startTimer = false;
 
-
-// --------- START of CLASS ------------------------------------
-
-
-// --------- END of CLASS ------------------------------------
-
-volatile bool shockState;
-int shockCount = 0;
 
 void changeState()
 {
@@ -56,24 +52,8 @@ void changeState()
 shockSensor s1(shockSensorPin);
 
 
-void sMonitor()
-{
-  if (!(s1.shockMonitor()))
-  {
-    // timer2.start();
-  }
-}
-
-TickTwo timer1(sMonitor, 1000, 2);
-TickTwo timer2(changeState, 250, 3);
-
-// Checks if motion was detected, sets LED HIGH and starts a timer
-// void IRAM_ATTR detectsShock() {
-//   Serial.println("Shock DETECTED!!!");
-//   l1.ledON();
-//   startTimer = true;
-//   lastTrigger = millis();
-// }
+TickTwo timer1(s1.readState, 1000, 4);
+TickTwo timer2(changeState, 500, 3);
 
 void setup()
 {
@@ -87,21 +67,19 @@ void setup()
   // l1.ledInit();
 
   timer1.start();
-  // attachInterrupt(digitalPinToInterrupt(shockSensorPin), detectsShock, RISING);
+  timer2.start();
 }
 
 void loop()
 {
   Serial.println("<LOOP>");
 
-  // now = millis();
-  // // Turn off the LED after the number of seconds defined in the timeSeconds variable
-  // if(startTimer && (now - lastTrigger > (timeSeconds*1000))) {
-  //   Serial.println("Shock stopped...");
-  //   l1.ledOFF();
-  //   startTimer = false;
-  // }
-
   timer1.update();
   timer2.update();
+
+  if (!(s1.shockMonitor())) {
+    s1.shockCount++;
+    Serial.printf("<Shock #%d>\n", shockCount);
+    // timer2.interval(150);
+  }
 }
