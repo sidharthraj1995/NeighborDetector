@@ -1,6 +1,12 @@
-/****
- * Custom LED Library
- ****/
+/**==============================================
+ * *                   LED Library
+ * Simple library to interact with Light Emitting
+ * Diode for ease of use
+ *   
+ *
+ *=============================================**/
+
+
 #ifndef LED_h
 #define LED_h
 
@@ -20,7 +26,8 @@ public:
     LED(uint8_t pin);
     void ledInit();
     void setLEDState(byte state);
-    int getLEDState();
+    byte getLEDState();
+    void toggleLED();
     void ledON();
     void ledOFF();
     void ledFlash(int cycle = 3, int debounce = 250);

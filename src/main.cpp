@@ -34,26 +34,30 @@
 volatile bool shockState;
 int shockCount = 0;
 
-// Timer: Auxiliary variables
-unsigned long now = millis();
-unsigned long lastTrigger = 0;
-boolean startTimer = false;
+// An instance of shockSensor class and pass the pin
+shockSensor s1(shockSensorPin);
 
+// An instance of LED class and pass the pin
+LED l1(ONBOARD_LED);
 
 void changeState()
 {
   digitalWrite(ONBOARD_LED, !(digitalRead(ONBOARD_LED)));
 }
 
-// An instance of LED class and pass the pin
-// LED l1(ONBOARD_LED);
+void ledCallback() {
+  l1.toggleLED();
+}
 
-// An instance of shockSensor class and pass the pin
-shockSensor s1(shockSensorPin);
+void shockCallback() {
+  s1.readState();
+}
 
 
-TickTwo timer1(s1.readState, 1000, 4);
-TickTwo timer2(changeState, 500, 3);
+
+
+TickTwo timer1(shockCallback, 1000, 4);
+TickTwo timer2(ledCallback, 600, 6);
 
 void setup()
 {
@@ -61,10 +65,11 @@ void setup()
   Serial.begin(9600);
   Serial.println("<SETUP>");
   Serial.println('\n' + "** Fuck Neighbors, White Trash! **" + '\n');
+
   s1.shockInit();
+  l1.ledInit();
 
   pinMode(ONBOARD_LED, OUTPUT);
-  // l1.ledInit();
 
   timer1.start();
   timer2.start();
@@ -77,7 +82,7 @@ void loop()
   timer1.update();
   timer2.update();
 
-  if (!(s1.shockMonitor())) {
+  if (s1.getState() == shockTriggered) {
     s1.shockCount++;
     Serial.printf("<Shock #%d>\n", shockCount);
     // timer2.interval(150);

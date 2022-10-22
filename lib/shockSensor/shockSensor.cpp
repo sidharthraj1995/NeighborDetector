@@ -34,13 +34,8 @@ void shockSensor::readState()
  ****/
 int shockSensor::getState()
 {
-  if (_shockState == shockTriggered)
-    return DIO_ON;
-
-  return DIO_OFF;
+  return _shockState;
 }
-
-
 
 bool shockSensor::shockMonitor()
 {
@@ -54,9 +49,10 @@ bool shockSensor::shockMonitor()
 }
 
 /****
- * !!PENDING!! Internal call to show shock
+ * !!PENDING!! Internal call to "show" shock
  * still not sure if there is a need for this within shocksensor class
  ****/
 void shockSensor::showShock(uint8_t mode)
 {
+  //to
 }

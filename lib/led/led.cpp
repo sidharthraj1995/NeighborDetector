@@ -31,10 +31,18 @@ void LED::setLEDState(unsigned char state)
 /****
  * Returns the instaneous state of LED
  ****/
-int LED::getLEDState()
+byte LED::getLEDState()
 {
-  Serial.println("<SYSTEM_LED> Returning State");
+  _ledState = digitalRead(_ledPin);
+  Serial.printf("<SYSTEM_LED> Returning State: %c\n", _ledState);
   return _ledState;
+}
+
+/****
+ * Changes state of the LED
+ ****/
+void LED::toggleLED() {
+  LED::setLEDState(!(LED::getLEDState));
 }
 
 /****
