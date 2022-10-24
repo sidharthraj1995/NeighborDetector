@@ -1,7 +1,7 @@
 /*
   Arkham Labs
   Project: DhumDhum
-  MCU: ESP32 - DevKit
+  MCU: ESP32/ESP8266 - DevKit
 
   IOs
   - Shock Sensor: HW-513 #GPIO_32
@@ -25,8 +25,8 @@
 #define ONBOARD_LED 2
 
 // Sensor Pins
-#define knockSensorPin 32
-#define shockSensorPin 33
+// #define knockSensorPin 32
+#define shockSensorPin 14
 
 volatile bool shockState;
 int shockCount = 0;
