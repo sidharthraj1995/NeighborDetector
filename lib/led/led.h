@@ -27,6 +27,7 @@ public:
     void ledInit();
     void setLEDState(byte state);
     byte getLEDState();
+    void ledUpdate();
     void toggleLED();
     void ledON();
     void ledOFF();

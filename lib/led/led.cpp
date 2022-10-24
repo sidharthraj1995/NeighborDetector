@@ -20,12 +20,13 @@ void LED::ledInit()
 
 /****
  * Used to set the logical state of the LED
+ * Updates LED State
  ****/
 void LED::setLEDState(unsigned char state)
 {
   digitalWrite(_ledPin, state);
-  _ledState = digitalRead(_ledPin);
-  Serial.printf("<SYSTEM_LED> Setting State: %c\n", state);
+  LED::ledUpdate();
+  // Serial.printf("<SYSTEM_LED> Setting State: %d\n", state);
 }
 
 /****
@@ -33,16 +34,23 @@ void LED::setLEDState(unsigned char state)
  ****/
 byte LED::getLEDState()
 {
-  _ledState = digitalRead(_ledPin);
-  Serial.printf("<SYSTEM_LED> Returning State: %c\n", _ledState);
+  LED::ledUpdate();
+  Serial.printf("<SYSTEM_LED> Returning State: %d\n", _ledState);
   return _ledState;
+}
+
+/****
+ * Method to update LED state
+ ****/
+void LED::ledUpdate() {
+  _ledState = digitalRead(_ledPin);
 }
 
 /****
  * Changes state of the LED
  ****/
 void LED::toggleLED() {
-  LED::setLEDState(!(LED::getLEDState));
+  LED::setLEDState(!(_ledState));
 }
 
 /****

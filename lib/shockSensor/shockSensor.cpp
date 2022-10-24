@@ -15,7 +15,7 @@ shockSensor::shockSensor(uint8_t pin)
  ****/
 void shockSensor::shockInit()
 {
-  pinMode(_shockPin, INPUT_PULLUP);
+  pinMode(_shockPin, INPUT);
   _shockState = DIO_ENABLED;
   Serial.printf("<SYSTEM_SHOCK> Init successful using PIN: %d\n", _shockPin);
 }
@@ -26,15 +26,18 @@ void shockSensor::shockInit()
 void shockSensor::readState()
 {
   _shockState = digitalRead(_shockPin);
-  Serial.println("<SHOCK> Shock Sensor READ!!");
+  // Serial.println("<SHOCK> Shock Sensor READ!!");
 }
 
 /****
  * Simple method to return shock sensor state
  ****/
-int shockSensor::getState()
+byte shockSensor::getState()
 {
-  return _shockState;
+  if (_shockState == shockTriggered)
+    return DIO_ON;
+
+  return DIO_OFF;
 }
 
 bool shockSensor::shockMonitor()

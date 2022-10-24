@@ -16,7 +16,7 @@ public:
   int shockCount = 0;
   void shockInit();
   void readState();
-  int getState();
+  byte getState();
   void setState();
   bool shockMonitor();            // redundant?
   void showShock(uint8_t mode);   // get rid of it
